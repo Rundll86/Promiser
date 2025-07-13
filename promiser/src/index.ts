@@ -43,7 +43,7 @@ export class AsyncWorker<T> {
             .catch((error) => self.postMessage({ status: "reject", error }));
     };
 }
-export function promiser<T>(executor: PromiseExecutor<T>) {
+export function asyncWork<T>(executor: PromiseExecutor<T>) {
     const controller = new AsyncWorker(executor);
     return Object.assign(controller.promise, { controller });
 }

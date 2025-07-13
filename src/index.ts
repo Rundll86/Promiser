@@ -1,4 +1,4 @@
-import { promiser } from "@promiser/index";
+import { asyncWork } from "@promiser/index";
 console.log("start");
 requestAnimationFrame(() => {
     new Promise<void>((resolve) => {
