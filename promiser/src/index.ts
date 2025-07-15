@@ -1,7 +1,6 @@
 type PromiseResolve<T> = (value: T | PromiseLike<T>) => void;
 type PromiseReject = (reason?: any) => void;
 type PromiseExecutor<T> = (resolve: PromiseResolve<T>, reject: PromiseReject) => void | PromiseLike<void>;
-declare const $func: PromiseExecutor<unknown>;
 export function createIIFE(func: Function) {
     return `(${func})()` as const;
 }
@@ -17,9 +16,9 @@ export class AsyncWorker<T> {
             resolver = resolve;
             rejector = reject;
         });
-        this.runnerCode = createIIFE(AsyncWorker.runnerTemplate).replaceAll("$func", executor.toString());
-        this.runnerUrl = URL.createObjectURL(new Blob([this.runnerCode], { type: "text/javascript" }));
+        this.runnerUrl = URL.createObjectURL(new Blob([createIIFE(AsyncWorker.runnerTemplate)], { type: "text/javascript" }));
         this.internalWorker = new Worker(this.runnerUrl);
+        this.internalWorker.postMessage({ executor });
         this.internalWorker.addEventListener("message", (event) => {
             const { status, data, error } = event.data;
             if (status === "resolve") {
@@ -38,12 +37,14 @@ export class AsyncWorker<T> {
         URL.revokeObjectURL(this.runnerUrl);
     }
     static runnerTemplate = () => {
-        new Promise($func)
-            .then((data) => self.postMessage({ status: "resolve", data }))
-            .catch((error) => self.postMessage({ status: "reject", error }));
+        self.addEventListener("message", (event) => {
+            new Promise(event.data.executor)
+                .then((data) => self.postMessage({ status: "resolve", data }))
+                .catch((error) => self.postMessage({ status: "reject", error }));
+        });
     };
 }
-export function asyncWork<T>(executor: PromiseExecutor<T>) {
+export function asyncWorker<T>(executor: PromiseExecutor<T>) {
     const controller = new AsyncWorker(executor);
     return Object.assign(controller.promise, { controller });
 }
