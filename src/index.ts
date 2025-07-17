@@ -1,15 +1,16 @@
-import { asyncWork } from "@promiser/index";
+import { AsyncWorker } from "@asyncWorker/index";
 console.log("start");
-requestAnimationFrame(() => {
-    new Promise<void>((resolve) => {
+requestAnimationFrame(async () => {
+    // await new Promise<void>((resolve) => {
+    //     for (let i = 0; i < 9999999999; i++) { }
+    //     resolve();
+    // });
+    await new AsyncWorker<void>((resolve) => {
         for (let i = 0; i < 9999999999; i++) { }
         resolve();
-    })
-        // promiser<void>((resolve) => {
-        //     for (let i = 0; i < 9999999999; i++) { }
-        //     resolve();
-        // })
-        .then(() => {
-            console.log("end");
-        });
+    }, {
+        a: 1,
+        b: 2
+    });
+    console.log("end");
 });

@@ -40,7 +40,7 @@ module.exports = {
         extensions: [".ts", ".js"],
         alias: {
             "@": path.resolve(__dirname, "src"),
-            "@promiser": path.resolve(__dirname, "promiser/src")
+            "@asyncWorker": path.resolve(__dirname, "asyncWorker/src")
         }
     },
     plugins: [
